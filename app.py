@@ -109,7 +109,6 @@ elif uploaded_file:
         - **Mock Interview Preparation:** Practice with customized interview questions and role-specific scenarios.
         - **Career Guidance:** Receive personalized advice on career paths, goals, and strategies for success.
         - **Upskilling Recommendations:** Find the best resources to improve your skills and stay competitive.
-        - **Progress Tracking:** Keep track of your learning and career development journey.
         """)
 
     elif page == "About Me":
