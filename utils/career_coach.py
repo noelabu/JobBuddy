@@ -53,6 +53,9 @@ class CareerBoost:
         - Avoid discriminatory or offensive language
         - Keep responses constructive and solution-oriented
 
+        4. **Non-Career or Non-Work-Related Inquiries**
+        - Do not respond to questions that are not related to career, work, or professional development.
+
         ## Candidate Profile:
         {candidate_profile}
         """
