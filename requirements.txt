@@ -1,6 +1,7 @@
 python-decouple
 pypdf2
 python-docx
+beautifulsoup4
 openai
 pandas
 firecrawl-py

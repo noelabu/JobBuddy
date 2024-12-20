@@ -1,11 +1,10 @@
 import os
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
 from langchain.schema import HumanMessage, SystemMessage, AIMessage
 from typing import List, Generator, Dict
 
 class MockInterview:
-    def __init__(self, api_key: str, candidate_details:str):
+    def __init__(self, api_key: str, candidate_details:str, job_listing_data:str):
         """
         Initialize MockInterview with OpenAI API key and optional candidate details.
         
@@ -22,7 +21,7 @@ class MockInterview:
         )
 
         # System prompt as a LangChain message template
-        self.system_prompt = SystemMessage(content="""
+        self.system_prompt = f"""
         **Role:**  
         You are an AI-powered chatbot that conducts mock job interviews. Your task is to simulate a realistic interview scenario based on the candidate's profile and job listing, assess the candidate's responses, and provide feedback. You will help candidates prepare for real-life job interviews by evaluating their answers and offering constructive feedback.
 
@@ -44,6 +43,12 @@ class MockInterview:
         1. **Candidate Profile**: This includes the candidate's background, skills, previous job experiences, and career aspirations.
         2. **Job Listing**: This includes the role, job responsibilities, required skills, and the company culture.
         Use these inputs to ask questions that are specific to the candidate's background and the job listing, ensuring the interview feels realistic and tailored.
+
+        Candidate Profile:
+        {candidate_details}
+
+        Job Listing:
+        {job_listing_data}
 
         **Constraints:**  
         - **Tone**: Maintain a professional, supportive, and constructive tone throughout the interview.
@@ -78,11 +83,9 @@ class MockInterview:
         - **Relevance**: Your answer directly addressed the question, but it would be even stronger if you tied the challenge to a team-based environment.
         - **Depth**: Great job explaining the technical aspects of the project, but try to give more context on the outcome and your role in the team.
         - **Confidence**: You sounded confident, but practicing a bit more on articulating technical details would help you sound even more authoritative.
-        """)
+        """
 
-        self.candidate_details = candidate_details
-
-    def mock_interview_guide(self, messages: List[Dict[str, str]]) -> Generator[str, None, None]:
+    def mock_interview_chat(self, messages: List[Dict[str, str]]) -> Generator[str, None, None]:
         """
         Generate a streaming mock interview coaching response.
         
@@ -93,7 +96,7 @@ class MockInterview:
         chat_messages = []
         
         # Add system message first
-        chat_messages.append(self.system_prompt)
+        chat_messages.append(SystemMessage(content=self.system_prompt))
         
         # Convert user messages
         for msg in messages:
@@ -103,6 +106,36 @@ class MockInterview:
                 chat_messages.append(AIMessage(content=msg['content']))
 
         # Stream the response
-        for chunk in self.llm.stream(messages):
+        for chunk in self.llm.stream(chat_messages):
             if chunk and chunk.content:
                 yield chunk.content
+    
+    def generate_interview_questions(self) -> str:
+        """
+        Generate a comprehensive interview questions based on candidate profile and job listing data.
+        
+        :return: Detailed interview questions
+        """
+        # Create the messages list, including the system message with the formatted profile
+        profile_messages = [
+            SystemMessage(content=self.system_prompt),
+            HumanMessage(content="""
+            Based on the candidate's profile and the provided job listing details, 
+            create a tailored list of interview questions that assess their technical skills, professional experience, cultural fit, and alignment with the company’s values. 
+            Include questions that probe into their past accomplishments, problem-solving abilities, and leadership experience, as well as their understanding of industry trends and their adaptability to new technologies. 
+            Additionally, incorporate behavioral and situational questions to evaluate their decision-making and teamwork skills, and explore their long-term career goals to ensure they align with the company’s growth path. 
+            The questions should help the candidate demonstrate their qualifications, motivations, and potential for success in the role, ensuring a comprehensive preparation for the interview.
+            The output should be a detailed report of the interview questions that can help the candidate with his interview.
+            """)
+        ]
+
+        #Stream the recommendation and yield it incrementally
+        for chunk in self.llm.stream(profile_messages):
+            if chunk and chunk.content:
+                yield chunk.content
+
+        # response = self.llm.invoke(profile_messages)
+        # return response.content
+
+    
+

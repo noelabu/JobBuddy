@@ -16,7 +16,7 @@ class CareerBoost:
         # Create a LangChain ChatOpenAI model
         self.llm = ChatOpenAI(
             model="gpt-4o-mini", 
-            temperature=0.7,  # Slightly creative responses
+            temperature=0.5,  # Slightly creative responses
             streaming=True
         )
 

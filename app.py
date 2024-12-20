@@ -4,6 +4,7 @@ from io import BytesIO
 import json
 
 from utils.mock_interview import MockInterview
+from utils.job_post_summarizer import JobScraper
 from utils.career_coach import CareerBoost
 from utils.resume_analyzer import ResumeAnalyzer
 from decouple import config
@@ -27,8 +28,8 @@ else:
 with st.sidebar:
     page = option_menu(
         "JobBuddy",
-        ["Home", "About Me", "Talk to a Career Coach", "Career Growth Recommendation"],
-        icons=['house', 'person-circle', 'chat', 'briefcase'],
+        ["Home", "About Me", "Talk to a Career Coach", "Career Growth Recommendation", "Interview Questions"],
+        icons=['house', 'person-circle', 'chat', 'briefcase', 'paperclip'],
         menu_icon="list",
         default_index=0,
     )
@@ -171,3 +172,12 @@ elif uploaded_file:
     elif page == "Career Growth Recommendation":
         #career_recommend =  career_coach.generate_career_recommendation()
         st.write_stream(career_coach.generate_career_recommendation())
+    
+    elif page == "Interview Questions":
+        st.header("Interview Questions Guide")
+        job_list_url = st.text_input("Enter the url of the job_listing:")
+        if st.button("Generate"):
+            job_scraper=JobScraper(api_key=api_key)
+            job_post_data = job_scraper.parse_job_listing(job_list_url=job_list_url)
+            mock_int = MockInterview(api_key=api_key, candidate_details=resume_details, job_listing_data=job_post_data)
+            st.write_stream(mock_int.generate_interview_questions())
