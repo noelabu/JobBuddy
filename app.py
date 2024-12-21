@@ -28,8 +28,8 @@ else:
 with st.sidebar:
     page = option_menu(
         "JobBuddy",
-        ["Home", "About Me", "Talk to a Career Coach", "Career Growth Recommendation", "Interview Questions"],
-        icons=['house', 'person-circle', 'chat', 'briefcase', 'paperclip'],
+        ["Home", "About Me", "Talk to a Career Coach", "Career Growth Recommendation", "Interview Questions", "Mock Interview"],
+        icons=['house', 'person-circle', 'chat', 'briefcase', 'paperclip', 'mic'],
         menu_icon="list",
         default_index=0,
     )
@@ -129,7 +129,7 @@ elif uploaded_file:
 
             # Extract user's name from resume details (ensure it's available)
             resume_details =  json.loads(resume_details)
-            user_name = resume_details['Contact Information'].get('Name', 'there')  # Default to "there" if no name found
+            user_name = resume_details.get("Contact Information", {}).get('Name', 'there')   # Default to "there" if no name found
 
             # Define multiple initial personalized messages for Career Coach
             initial_messages = [
@@ -181,3 +181,56 @@ elif uploaded_file:
             job_post_data = job_scraper.parse_job_listing(job_list_url=job_list_url)
             mock_int = MockInterview(api_key=api_key, candidate_details=resume_details, job_listing_data=job_post_data)
             st.write_stream(mock_int.generate_interview_questions())
+
+    elif page == "Mock Interview":
+        st.header("Mock Interview")
+        st.write('To start, please enter the job listing URL to begin the interview.')
+
+        # Check if job listing data is already stored in session state
+        if "job_post_data" not in st.session_state:
+            job_list_url = st.text_input("Enter the URL of the job listing:")
+            
+            if st.button("Start the mock interview"):
+                # If the button is pressed and job listing is not yet parsed
+                if job_list_url:
+                    # Parse job listing and store it in session state
+                    job_scraper = JobScraper(api_key=api_key)
+                    job_post_data = job_scraper.parse_job_listing(job_list_url=job_list_url)
+                    st.session_state.job_post_data = job_post_data
+                else:
+                    st.warning("Please enter a valid job listing URL.")
+        else:
+            # If job data is already present, don't parse again
+            job_post_data = st.session_state.job_post_data
+
+        if "job_post_data" in st.session_state:
+            # Now, initiate the mock interview with the parsed job data and resume details
+            mock_int = MockInterview(api_key=api_key, candidate_details=resume_details, job_listing_data=job_post_data)
+
+            # Initialize chat history if not present
+            if "interview" not in st.session_state:
+                st.session_state.interview = []
+
+                response = mock_int.start_interview()
+                st.session_state.interview.append({"role": "assistant", "content": response})
+
+            # Display previous chat messages
+            for message in st.session_state.interview:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+
+            # Accept user input for chat in the mock interview
+            if prompt := st.chat_input("Enter your answer:"):
+                # Add user message to chat history
+                st.session_state.interview.append({"role": "user", "content": prompt})
+
+                # Display user message in chat message container
+                with st.chat_message("user"):
+                    st.markdown(prompt)
+
+                # Display assistant's response
+                with st.chat_message("assistant"):
+                    response = st.write_stream(mock_int.mock_interview_chat(st.session_state.interview))
+
+                # Add assistant response to chat history
+                st.session_state.interview.append({"role": "assistant", "content": response})
