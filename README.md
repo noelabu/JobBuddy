@@ -93,7 +93,7 @@ After setting up the API key, you can run the Streamlit app to interact with the
 streamlit run app.py
 ```
 
-Open your browser and go to `http://localhost:8501` to access the application. 
+Open your browser and go to `http://localhost:8501` to access the application. You can also access the application [here](https://noelabu-jobbuddy.streamlit.app/).
 
 ## Contributing
 
