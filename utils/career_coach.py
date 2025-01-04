@@ -101,6 +101,7 @@ class CareerBoost:
 
             Career Growth Paths: Identify potential career trajectories and growth opportunities based on the user’s current skills, experience, and industry trends.
             Skill Development Recommendations: Suggest key skills that the candidate should focus on developing in order to progress in their career. These should be aligned with the user’s desired career goals, job roles, and industry demands.
+            Upskilling Recommendations: Recommend specific courses, certifications, or training programs that can help the candidate enhance their existing skills or acquire new ones.
             Networking and Professional Development Strategies: Recommend effective strategies for the candidate to expand their professional network, enhance their personal brand, and continue learning and growing within their field.
 
             The output should be structured as a detailed, step-by-step guide that takes into account of the candidate's unique career journey, goals, and aspirations. The report should provide actionable insights and a clear roadmap for professional advancement."
